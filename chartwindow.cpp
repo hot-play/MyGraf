@@ -34,28 +34,24 @@ ChartWindow::ChartWindow(QWidget *parent) :
 {
     connectSignals();
     // create layout
-    QGridLayout *baseLayout = new QGridLayout();
+    m_baseLayout = new QGridLayout();
     QHBoxLayout *settingsLayout = new QHBoxLayout();
     settingsLayout->addWidget(new QLabel("Theme:"));
     settingsLayout->addWidget(m_themeComboBox);
     settingsLayout->addWidget(new QLabel("Type:"));
     settingsLayout->addWidget(m_typeComboBox);
     settingsLayout->addStretch();
-    baseLayout->addLayout(settingsLayout, 0, 0, 1, 3);
+    m_baseLayout->addLayout(settingsLayout, 0, 0, 1, 3);
 
     //create charts
 
     QChartView *chartView;
     chartView = new QChartView(createAreaChart());
-    baseLayout->addWidget(chartView, 1, 0);
+    m_baseLayout->addWidget(chartView, 1, 0);
     m_charts = chartView;
 
-    setLayout(baseLayout);
+    setLayout(m_baseLayout);
     updateUI();
-}
-
-ChartWindow::~ChartWindow()
-{
 }
 
 void ChartWindow::connectSignals()
@@ -91,19 +87,32 @@ DataTable ChartWindow::generateRandomData(int listCount, int valueMax, int value
 
     return dataTable;
 }
+/*
+void ChartWindow::fillData() const
+{
+    DataTable dataTable;
 
+    for (int i(0); i < listCount; i++) {
+        DataList dataList;
+        qreal yValue(0);
+        for (int j(0); j < valueCount; j++) {
+            yValue = yValue + (qreal);
+            QPointF value(yValue, yValue);
+            QString label = "Slice ";
+            dataList << Data(value, label);
+        }
+        dataTable << dataList;
+    }
+
+    return dataTable;
+}
+*/
 QComboBox *ChartWindow::createThemeBox() const
 {
     // settings layout
     QComboBox *themeComboBox = new QComboBox();
-    themeComboBox->addItem("Light", QChart::ChartThemeLight);
-    themeComboBox->addItem("Blue Cerulean", QChart::ChartThemeBlueCerulean);
-    themeComboBox->addItem("Dark", QChart::ChartThemeDark);
-    themeComboBox->addItem("Brown Sand", QChart::ChartThemeBrownSand);
-    themeComboBox->addItem("Blue NCS", QChart::ChartThemeBlueNcs);
-    themeComboBox->addItem("High Contrast", QChart::ChartThemeHighContrast);
-    themeComboBox->addItem("Blue Icy", QChart::ChartThemeBlueIcy);
-    themeComboBox->addItem("Qt", QChart::ChartThemeQt);
+    themeComboBox->addItem("Color", QChart::ChartThemeLight);
+    themeComboBox->addItem("White-Black", QChart::ChartThemeDark);
     return themeComboBox;
 }
 
@@ -270,7 +279,11 @@ void ChartWindow::switchType()
     } else if (type == 6) {
         chart = new QChartView(createScatterChart());
     }
+    delete m_charts;
     m_charts = chart;
+    m_baseLayout->addWidget(chart, 1, 0);
+    setLayout(m_baseLayout);
+    updateUI();
 }
 
 void ChartWindow::updateUI()
@@ -281,34 +294,6 @@ void ChartWindow::updateUI()
     const auto charts = m_charts;
     if (m_charts->chart()->theme() != theme) {
         charts->chart()->setTheme(theme);
-
-        QPalette pal = window()->palette();
-        if (theme == QChart::ChartThemeLight) {
-            pal.setColor(QPalette::Window, QRgb(0xf0f0f0));
-            pal.setColor(QPalette::WindowText, QRgb(0x404044));
-        } else if (theme == QChart::ChartThemeDark) {
-            pal.setColor(QPalette::Window, QRgb(0x121218));
-            pal.setColor(QPalette::WindowText, QRgb(0xd6d6d6));
-        } else if (theme == QChart::ChartThemeBlueCerulean) {
-            pal.setColor(QPalette::Window, QRgb(0x40434a));
-            pal.setColor(QPalette::WindowText, QRgb(0xd6d6d6));
-        } else if (theme == QChart::ChartThemeBrownSand) {
-            pal.setColor(QPalette::Window, QRgb(0x9e8965));
-            pal.setColor(QPalette::WindowText, QRgb(0x404044));
-        } else if (theme == QChart::ChartThemeBlueNcs) {
-            pal.setColor(QPalette::Window, QRgb(0x018bba));
-            pal.setColor(QPalette::WindowText, QRgb(0x404044));
-        } else if (theme == QChart::ChartThemeHighContrast) {
-            pal.setColor(QPalette::Window, QRgb(0xffab03));
-            pal.setColor(QPalette::WindowText, QRgb(0x181818));
-        } else if (theme == QChart::ChartThemeBlueIcy) {
-            pal.setColor(QPalette::Window, QRgb(0xcee7f0));
-            pal.setColor(QPalette::WindowText, QRgb(0x404044));
-        } else {
-            pal.setColor(QPalette::Window, QRgb(0xf0f0f0));
-            pal.setColor(QPalette::WindowText, QRgb(0x404044));
-        }
-        window()->setPalette(pal);
     }
 }
 

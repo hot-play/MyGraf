@@ -8,6 +8,7 @@ QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 QT += charts
+QT += sql
 TARGET = MyGraf
 TEMPLATE = app
 
@@ -26,11 +27,17 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
-    chartwindow.cpp
+    chartwindow.cpp \
+    fileexplorerwindow.cpp \
+    datareader.cpp \
+    jsonreader.cpp
 
 HEADERS += \
         mainwindow.h \
-    chartwindow.h
+    chartwindow.h \
+    fileexplorerwindow.h \
+    datareader.h \
+    jsonreader.h
 
 FORMS += \
         mainwindow.ui

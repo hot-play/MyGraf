@@ -9,6 +9,7 @@
 #include <QFileSystemModel>
 #include <QTreeView>
 #include <QTableView>
+#include <QtWidgets/QGridLayout>
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
@@ -40,13 +41,13 @@ class ChartWindow: public QWidget
     Q_OBJECT
 public:
     explicit ChartWindow(QWidget *parent = nullptr);
-    ~ChartWindow();
 
 private Q_SLOTS:
     void updateUI();
     void switchType();
 private:
     DataTable generateRandomData(int listCount, int valueMax, int valueCount) const;
+    DataTable openData() const;
     QComboBox *createThemeBox() const;
     QComboBox *createTypeBox() const;
     void connectSignals();
@@ -63,7 +64,8 @@ private:
     int m_valueMax;
     int m_valueCount;
 
-    QChartView * m_charts;
+    QGridLayout *m_baseLayout;
+    QChartView *m_charts;
     DataTable m_dataTable;
     QComboBox *m_themeComboBox;
     QComboBox *m_typeComboBox;
