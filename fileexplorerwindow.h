@@ -7,6 +7,8 @@
 #include <QTreeView>
 #include <QTableView>
 #include <QtWidgets/QGridLayout>
+#include <chartwindow.h>
+#include <QErrorMessage>
 
 QT_BEGIN_NAMESPACE
 namespace Ui
@@ -21,13 +23,15 @@ class FileExplorerWindow : public QWidget
     Q_OBJECT
 
 public:
-    FileExplorerWindow(QWidget *parent = nullptr);
-
+    FileExplorerWindow(ChartWindow * chartWindow, QWidget *parent = nullptr);
+signals:
+    void dataChangeSignal(DataTable data);
 private slots:
     void on_selectionChangedSlot(const QItemSelection &selected, const QItemSelection &deselected);
     bool CheckFileType(QString filePath);
 
 private:
+    QErrorMessage * errorMessager;
     QGridLayout * baseLayout;
     QStatusBar * statusBar;
     QFileSystemModel *leftPartModel;

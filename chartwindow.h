@@ -33,21 +33,17 @@ class WidgetChart:public QWidget
 public:
     explicit WidgetChart(QWidget *parent = nullptr);
     ~WidgetChart(){}
-
-
 };
 class ChartWindow: public QWidget
 {
     Q_OBJECT
 public:
     explicit ChartWindow(QWidget *parent = nullptr);
-
 private Q_SLOTS:
     void updateUI();
     void switchType();
 private:
     DataTable generateRandomData(int listCount, int valueMax, int valueCount) const;
-    DataTable openData() const;
     QComboBox *createThemeBox() const;
     QComboBox *createTypeBox() const;
     void connectSignals();
@@ -58,12 +54,9 @@ public:
     QChart *createLineChart() const;
     QChart *createSplineChart() const;
     QChart *createScatterChart() const;
-
+public slots:
+    void switchData(DataTable data);
 private:
-    int m_listCount;
-    int m_valueMax;
-    int m_valueCount;
-
     QGridLayout *m_baseLayout;
     QChartView *m_charts;
     DataTable m_dataTable;

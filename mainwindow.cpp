@@ -14,8 +14,8 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    fileExplorerWindow = new FileExplorerWindow(this);
     chartWindow = new ChartWindow(this);
+    fileExplorerWindow = new FileExplorerWindow(chartWindow, this);
     setWindowTitle(QString("MyGraf"));
     //Устанавливаем размер главного окна
     this->setGeometry(100, 100, 1500, 1000);

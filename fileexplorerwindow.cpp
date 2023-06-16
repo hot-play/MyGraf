@@ -20,49 +20,52 @@
 #include <QtWidgets/QGroupBox>
 #include <QtWidgets/QLabel>
 
-FileExplorerWindow::FileExplorerWindow(QWidget *parent)
+#include <JsonReader.h>
+#include <chartwindow.h>
+
+FileExplorerWindow::FileExplorerWindow(ChartWindow * chartWindow, QWidget *parent)
     : QWidget(parent)
 {
-     //Устанавливаем размер главного окна
-     baseLayout = new QGridLayout();
-     QString homePath = QDir::homePath();
-     // Определим  файловой системы:
-     leftPartModel =  new QFileSystemModel(this);
-     QStringList filters;
-         filters << "*.txt" << "*.csv" << "*.json";
-     leftPartModel->setNameFilters(filters);
-     leftPartModel->setRootPath(homePath);
-     //Показатьв виде "дерева". Пользуемся готовым видом(TreeView):
-     treeView = new QTreeView();
-     // Устанавливаем модель данных для отображения
-     treeView->setModel(leftPartModel);
-     //Раскрываем все папки первого уровня
-     treeView->expandAll();
-     // Создаем объект "сплиттер(разделитель)"
-     baseLayout->addWidget(treeView);
-     setLayout(baseLayout);
-     /*
-      * QItemSelectionModel *selectionModel отслеживает выбранные элементы в представлении treeView,
-      * также отслеживает текущий выбранный элемент в представлении treeView.
-     */
-     QItemSelectionModel *selectionModel = treeView->selectionModel();
-     treeView->header()->resizeSection(0, 200);
+    //Устанавливаем размер главного окна
+    baseLayout = new QGridLayout();
+    QString homePath = QDir::homePath();
+    // Определим  файловой системы:
+    leftPartModel =  new QFileSystemModel(this);
+    QStringList filters;
+        filters << "*.txt" << "*.csv" << "*.json";
+    leftPartModel->setNameFilters(filters);
+    leftPartModel->setRootPath(homePath);
+    //Показатьв виде "дерева". Пользуемся готовым видом(TreeView):
+    treeView = new QTreeView();
+    // Устанавливаем модель данных для отображения
+    treeView->setModel(leftPartModel);
+    //Раскрываем все папки первого уровня
+    treeView->expandAll();
+    // Создаем объект "сплиттер(разделитель)"
+    baseLayout->addWidget(treeView);
+    setLayout(baseLayout);
+    /*
+     * QItemSelectionModel *selectionModel отслеживает выбранные элементы в представлении treeView,
+     * также отслеживает текущий выбранный элемент в представлении treeView.
+    */
+    QItemSelectionModel *selectionModel = treeView->selectionModel();
+    treeView->header()->resizeSection(0, 200);
 
-     //Выполняем соединения слота и сигнала который вызывается когда осуществляется выбор элемента в TreeView
+    //Выполняем соединения слота и сигнала который вызывается когда осуществляется выбор элемента в TreeView
 
-     /*connect(selectionModel, SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
-             this, SLOT(on_selectionChangedSlot(const QItemSelection &, const QItemSelection &)));*/
-
-     connect(selectionModel, &QItemSelectionModel::selectionChanged, this, &FileExplorerWindow::on_selectionChangedSlot);
-
-     //Пример организации установки курсора в TreeView относительно модельного индекса
-     QItemSelection toggleSelection;
-     //Объявили модельный индекс topLeft
-     QModelIndex topLeft;
-     //Получили индекс из модели
-     topLeft = leftPartModel->index(homePath);
-     toggleSelection.select(topLeft, topLeft);
-     selectionModel->select(toggleSelection, QItemSelectionModel::Toggle);
+    /*connect(selectionModel, SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
+            this, SLOT(on_selectionChangedSlot(const QItemSelection &, const QItemSelection &)));*/
+    errorMessager = new QErrorMessage(this);
+    connect(selectionModel, &QItemSelectionModel::selectionChanged, this, &FileExplorerWindow::on_selectionChangedSlot);
+    connect(this, &FileExplorerWindow::dataChangeSignal, chartWindow, &ChartWindow::switchData);
+    //Пример организации установки курсора в TreeView относительно модельного индекса
+    QItemSelection toggleSelection;
+    //Объявили модельный индекс topLeft
+    QModelIndex topLeft;
+    //Получили индекс из модели
+    topLeft = leftPartModel->index(homePath);
+    toggleSelection.select(topLeft, topLeft);
+    selectionModel->select(toggleSelection, QItemSelectionModel::Toggle);
 }
 
 void FileExplorerWindow::on_selectionChangedSlot(const QItemSelection &selected, const QItemSelection &deselected)
@@ -75,12 +78,21 @@ void FileExplorerWindow::on_selectionChangedSlot(const QItemSelection &selected,
     QString filePath = leftPartModel->filePath(indexs.constFirst());
     if (CheckFileType(filePath)) {
         // Подключение слота
+        DataTable data;
+        QString error;
+        JsonReader reader;
+        bool readResult = reader.readData(filePath, data, error);
+        if (readResult) {
+            dataChangeSignal(data);
+        } else {
+            errorMessager->showMessage(error);
+        }
     }
 }
 
 bool FileExplorerWindow::CheckFileType(QString filePath) {
     QFileInfo file(filePath);
-    if ((file.suffix() == "txt") || (file.suffix() == "json"))
+    if ((file.suffix() == "csv") || (file.suffix() == "json"))
         return true;
     return false;
 }

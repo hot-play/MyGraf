@@ -30,14 +30,18 @@ SOURCES += \
     chartwindow.cpp \
     fileexplorerwindow.cpp \
     datareader.cpp \
-    jsonreader.cpp
+    jsonreader.cpp \
+    csvreader.cpp \
+    sqlreader.cpp
 
 HEADERS += \
         mainwindow.h \
     chartwindow.h \
     fileexplorerwindow.h \
     datareader.h \
-    jsonreader.h
+    jsonreader.h \
+    csvreader.h \
+    sqlreader.h
 
 FORMS += \
         mainwindow.ui

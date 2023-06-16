@@ -1,11 +1,10 @@
 #ifndef JSONREADER_H
 #define JSONREADER_H
+#include <datareader.h>
 
-
-class jsonReader
+class JsonReader: public DataReader
 {
 public:
-    jsonReader();
+    bool readData(QString const filePath, DataTable& data, QString& readError);
 };
-
 #endif // JSONREADER_H

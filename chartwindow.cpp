@@ -25,10 +25,7 @@
 
 ChartWindow::ChartWindow(QWidget *parent) :
     QWidget(parent),
-    m_listCount(3),
-    m_valueMax(10),
-    m_valueCount(7),
-    m_dataTable(generateRandomData(m_listCount, m_valueMax, m_valueCount)),
+    m_dataTable(generateRandomData(3, 10, 7)),
     m_themeComboBox(createThemeBox()),
     m_typeComboBox(createTypeBox())
 {
@@ -77,7 +74,7 @@ DataTable ChartWindow::generateRandomData(int listCount, int valueMax, int value
         qreal yValue(0);
         for (int j(0); j < valueCount; j++) {
             yValue = yValue + (qreal)(qrand() % valueMax) / (qreal) valueCount;
-            QPointF value((j + (qreal) rand() / (qreal) RAND_MAX) * ((qreal) m_valueMax / (qreal) valueCount),
+            QPointF value((j + (qreal) rand() / (qreal) RAND_MAX) * ((qreal) 3 / (qreal) valueCount),
                           yValue);
             QString label = "Slice " + QString::number(i) + ":" + QString::number(j);
             dataList << Data(value, label);
@@ -269,7 +266,7 @@ void ChartWindow::switchType()
     if (type == 1) {
         chart = new QChartView(createAreaChart());
     } else if (type == 2) {
-        chart = new QChartView(createBarChart(m_valueCount));
+        chart = new QChartView(createBarChart(3));
     } else if (type == 3) {
         chart = new QChartView(createLineChart());
     } else if (type == 4) {
@@ -283,6 +280,12 @@ void ChartWindow::switchType()
     m_charts = chart;
     m_baseLayout->addWidget(chart, 1, 0);
     setLayout(m_baseLayout);
+    updateUI();
+}
+
+void ChartWindow::switchData(DataTable data) {
+    m_dataTable = data;
+    switchType();
     updateUI();
 }
 
