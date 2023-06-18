@@ -4,7 +4,6 @@
 #include <QJsonArray>
 #include <QJsonValue>
 #include <QJsonParseError>
-#include <QMap>
 
 bool JsonReader::readData(const QString filePath, ChartData &data, QString &readError) {
     // Открываем и считываем содержимое файла
@@ -24,7 +23,7 @@ bool JsonReader::readData(const QString filePath, ChartData &data, QString &read
     if (doc.isObject()) {
         QJsonObject jsonData = doc.object();
         QJsonArray jsonArray = jsonData["chartData"].toArray();
-        QMap<QString, avg> dataMap;
+        QMap<QString, forAvgComputingValue> dataMap;
         foreach (const QJsonValue & value, jsonArray) {
             if (value.isObject())
             {

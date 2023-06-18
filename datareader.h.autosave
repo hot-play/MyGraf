@@ -7,7 +7,7 @@
 #include <QVariant>
 #include <memory>
 
-struct avg
+struct forAvgComputingValue
 {
     float value;
     int count;

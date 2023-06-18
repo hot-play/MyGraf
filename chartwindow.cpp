@@ -29,63 +29,46 @@
 #include <QPdfWriter>
 
 ChartWindow::ChartWindow(QWidget *parent) :
-    QWidget(parent),
-    themeComboBox(createThemeBox()),
-    typeComboBox(createTypeBox()),
-    saveButton(createPushButton())
+    QWidget(parent)
 {
-    connectSignals();
     // Создадим лайаут
     baseLayout = new QGridLayout(this);
     QHBoxLayout *settingsLayout = new QHBoxLayout(this);
+    // Добавим список с темами графиков
     settingsLayout->addWidget(new QLabel("Тема:", this));
+    themeComboBox = new QComboBox();
+    themeComboBox->addItem("Color", QChart::ChartThemeLight);
+    themeComboBox->addItem("White-Black", QChart::ChartThemeDark);
     settingsLayout->addWidget(themeComboBox);
+    // Добавим список с типами графиков
     settingsLayout->addWidget(new QLabel("Тип графика:", this));
+    typeComboBox = new QComboBox();
+    typeComboBox->addItem("Линейный график", 1);
+    typeComboBox->addItem("Круговой график", 2);
+    typeComboBox->addItem("Столбчатый график", 3);
     settingsLayout->addWidget(typeComboBox);
+    // Добавим кнопку сохранения файла
+    saveButton = new QPushButton("Сохранить");
     settingsLayout->addWidget(saveButton);
     settingsLayout->addStretch();
-    baseLayout->addLayout(settingsLayout, 0, 0, 1, 3);
 
-    charts = new QChartView(this);
-    baseLayout->addWidget(charts, 1, 0);
-    setLayout(baseLayout);
-    updateUI();
-}
-
-void ChartWindow::connectSignals()
-{
+    // Подключим сигналы
     connect(themeComboBox,
             static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
             this, &ChartWindow::updateUI);
     connect(typeComboBox,
-            static_cast<void (QComboBox::*)(int )>(&QComboBox::currentIndexChanged),
+            static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
             this, &ChartWindow::switchType);
     connect(saveButton,
             &QPushButton::released,
             this, &ChartWindow::printChartToPdf);
-}
 
-QComboBox *ChartWindow::createThemeBox() const
-{
-    QComboBox *themeComboBox = new QComboBox(charts);
-    themeComboBox->addItem("Color", QChart::ChartThemeLight);
-    themeComboBox->addItem("White-Black", QChart::ChartThemeDark);
-    return themeComboBox;
-}
-
-QComboBox *ChartWindow::createTypeBox() const
-{
-    QComboBox *typeComboBox = new QComboBox(charts);
-    typeComboBox->addItem("Линейный график", 1);
-    typeComboBox->addItem("Круговой график", 2);
-    typeComboBox->addItem("Столбчатый график", 3);
-    return typeComboBox;
-}
-
-QPushButton *ChartWindow::createPushButton() const
-{
-    QPushButton *pushButton = new QPushButton("Сохранить", charts);
-    return pushButton;
+    // Отрисуем все копмоненты
+    baseLayout->addLayout(settingsLayout, 0, 0, 1, 3);
+    charts = new QChartView(this);
+    baseLayout->addWidget(charts, 1, 0);
+    setLayout(baseLayout);
+    updateUI();
 }
 
 QChart *ChartWindow::createLineChart() const
