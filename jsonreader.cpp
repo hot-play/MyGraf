@@ -23,19 +23,27 @@ bool JsonReader::readData(const QString filePath, ChartData &data, QString &read
     if (doc.isObject()) {
         QJsonObject jsonData = doc.object();
         QJsonArray jsonArray = jsonData["chartData"].toArray();
-        ChartDataPoint dataPoint;
+        QMap<QString, avg> dataMap;
         foreach (const QJsonValue & value, jsonArray) {
             if (value.isObject())
             {
                 QJsonObject obj = value.toObject();
-                dataPoint.date = obj["date"].toString();
-                dataPoint.value = obj["value"].toDouble();
-                data.points.push_back(dataPoint);
+                QString date  = obj["date"].toString().split(' ').first().split(".").at(2) + "." +
+                        obj["date"].toString().split(' ').first().split(".").at(1);
+                float value = obj["value"].toDouble();
+                dataMap[date].value += value;
+                dataMap[date].count += 1;
             }
             else {
                 readError = "Ошибка при чтении файла";
                 return false;
             }
+        }
+        ChartDataPoint dataPoint;
+        for(auto pair : dataMap.toStdMap()) {
+            dataPoint.date = pair.first;
+            dataPoint.value = (pair.second.value) / (pair.second.count);
+            data.points.push_back(dataPoint);
         }
     }
     return true;

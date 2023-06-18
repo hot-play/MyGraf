@@ -13,22 +13,22 @@ bool CsvReader::readData(const QString filePath, ChartData &data, QString &readE
     fileData = file.readAll();
     file.close();
     // Начинаем парсить данные
-    QStringList csvData = fileData.split(";");
-    bool index = 0;
-    ChartDataPoint dataPoint;
-    foreach (const QString & value, csvData) {
-        if (index) {
-            dataPoint.value = value.toFloat();
-            data.points.push_back(dataPoint);
-            index = !index;
-        } else {
-            dataPoint.date = value;
-            index = !index;
-        }
+    QStringList csvData = fileData.split("\n");
+    QMap<QString, avg> dataMap;
+    foreach (const QString & csvStroke, csvData) {
+        QString csvDate = csvStroke.split(',').at(0);
+        QString csvValue = csvStroke.split(',').at(1);
+        auto date = csvDate.split(' ').first().split(".").at(2) + "." +
+                csvDate.split(' ').first().split(".").at(1);
+        float value = csvValue.toFloat();
+        dataMap[date].value += value;
+        dataMap[date].count += 1;
     }
-    if (!index) {
-        readError = "Файл не корректен";
-        return false;
+    ChartDataPoint dataPoint;
+    for(auto pair : dataMap.toStdMap()) {
+        dataPoint.date = pair.first;
+        dataPoint.value = (pair.second.value) / (pair.second.count);
+        data.points.push_back(dataPoint);
     }
     return true;
 }

@@ -3,6 +3,12 @@
 #include <chartwindow.h>
 #include <memory>
 
+struct avg
+{
+    float value;
+    int count;
+};
+
 class DataReader
 {
 public:

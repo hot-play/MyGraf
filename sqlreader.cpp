@@ -27,27 +27,21 @@ bool SqlReader::readData(const QString filePath, ChartData &data, QString &readE
     auto table = tables.first();
     auto query = QSqlQuery {"select * from " + table};
 
-    struct avg
-    {
-        float value;
-        int count;
-    };
-    QMap<QString, avg> data1;
+    QMap<QString, avg> dataMap;
     while (query.next()) {
         QString date = query.value(0).toString().split(' ').first().split(".").at(2) + "." +
                 query.value(0).toString().split(' ').first().split(".").at(1);
         float value = query.value(1).toFloat();
 
-        data1[date].value += value;
-        data1[date].count += 1;
+        dataMap[date].value += value;
+        dataMap[date].count += 1;
     }
     ChartDataPoint dataPoint;
-    for(auto pair : data1.toStdMap()) {
+    for(auto pair : dataMap.toStdMap()) {
         dataPoint.date = pair.first;
         dataPoint.value = (pair.second.value) / (pair.second.count);
         data.points.push_back(dataPoint);
     }
-    data.points.push_back(dataPoint);
     dataBase.close();
     return true;
 }
