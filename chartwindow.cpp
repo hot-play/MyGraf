@@ -21,6 +21,10 @@
 #include <QtWidgets/QLabel>
 #include <QtCore/QTime>
 #include <QtCharts/QBarCategoryAxis>
+#include <QDate>
+#include <QDateTime>
+#include <QDateTimeAxis>
+#include <QValueAxis>
 
 
 ChartWindow::ChartWindow(QWidget *parent) :
@@ -38,8 +42,6 @@ ChartWindow::ChartWindow(QWidget *parent) :
     settingsLayout->addWidget(m_typeComboBox);
     settingsLayout->addStretch();
     m_baseLayout->addLayout(settingsLayout, 0, 0, 1, 3);
-
-    //create charts
 
     QChartView *chartView;
     chartView = new QChartView(createPieChart());
@@ -62,7 +64,6 @@ void ChartWindow::connectSignals()
 
 QComboBox *ChartWindow::createThemeBox() const
 {
-    // settings layout
     QComboBox *themeComboBox = new QComboBox();
     themeComboBox->addItem("Color", QChart::ChartThemeLight);
     themeComboBox->addItem("White-Black", QChart::ChartThemeDark);
@@ -80,45 +81,45 @@ QComboBox *ChartWindow::createTypeBox() const
 
 QChart *ChartWindow::createLineChart() const
 {
-    auto series = new QLineSeries();
-    QChart *chart = new QChart();
+    auto series = new QLineSeries {};
+    QChart * chart = new QChart();
 
     for (auto point: chartData.points) {
-        bool okx = true;
-        bool oky = true;
-
         float x, y;
 
         auto date = QDateTime {{QDate::fromString(point.date, "yyyy.MM")}};
-
-        if (date.isValid()) {
-            x = (float) date.toMSecsSinceEpoch();
-        } else {
-            x = point.date.toFloat(&okx);
-        }
-
-        y = point.value.toFloat(&oky);
-
-        if (okx && oky) {
-            series->append({x, y});
-        }
+        x = (float) date.toMSecsSinceEpoch();
+        y = point.value;
+        series->append({x, y});
     }
 
     chart->addSeries(series);
     chart->legend()->hide();
+
+    auto dateTimeAxis = new QDateTimeAxis {};
+    dateTimeAxis->setTitleText(chartData.dateAxisTitle);
+    auto valueAxis = new QValueAxis {};
+    valueAxis->setTitleText(chartData.valueAxisTitle);
+
+    dateTimeAxis->setFormat("yyyy.MM");
+    dateTimeAxis->setTickCount(7);
+
+    chart->addAxis(dateTimeAxis, Qt::AlignBottom);
+    chart->addAxis(valueAxis, Qt::AlignLeft);
+
+    series->attachAxis(dateTimeAxis);
+    series->attachAxis(valueAxis);
 
     return chart;
 }
 
 QChart *ChartWindow::createPieChart() const
 {
-    auto series = new QPieSeries();
-
-    QChart *chart = new QChart();
-    chart->setTitle(chartData.chartTitle);
+    auto series = new QPieSeries {};
+    QChart * chart = new QChart();
 
     for (auto point: chartData.points) {
-        auto value {point.value.toFloat()};
+        float value {point.value};
         series->append(point.date, value);
     }
 
@@ -133,15 +134,17 @@ QChart *ChartWindow::createBarChart(int count) const
     auto series = new QBarSeries {};
     QChart *chart = new QChart();
     for (auto point: chartData.points) {
-        auto value {point.value.toFloat()};
+        auto value {point.value};
         auto barSet = new QBarSet {point.date};
         barSet->append(value);
         series->append(barSet);
     }
-
+    auto valueAxis = new QValueAxis {};
+    valueAxis->setTitleText(chartData.valueAxisTitle);
     chart->legend()->show();
     chart->addSeries(series);
-
+    chart->addAxis(valueAxis, Qt::AlignLeft);
+    series->attachAxis(valueAxis);
     return chart;
 }
 

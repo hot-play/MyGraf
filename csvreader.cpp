@@ -18,7 +18,7 @@ bool CsvReader::readData(const QString filePath, ChartData &data, QString &readE
     ChartDataPoint dataPoint;
     foreach (const QString & value, csvData) {
         if (index) {
-            dataPoint.value = value;
+            dataPoint.value = value.toFloat();
             data.points.push_back(dataPoint);
             index = !index;
         } else {

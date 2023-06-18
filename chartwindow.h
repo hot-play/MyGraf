@@ -26,10 +26,12 @@ QT_CHARTS_USE_NAMESPACE
 
 struct ChartDataPoint {
     QString date;
-    QString value;
+    float value;
 };
 
 struct ChartData {
+    QString dateAxisTitle = "date";
+    QString valueAxisTitle = "value";
     QString chartTitle;
     QVector<ChartDataPoint> points;
 };

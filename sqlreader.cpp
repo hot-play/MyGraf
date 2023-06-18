@@ -3,7 +3,6 @@
 #include <QSqlQuery>
 #include <QSqlRecord>
 #include <QSqlDatabase>
-#include <QDebug>
 
 bool SqlReader::readData(const QString filePath, ChartData &data, QString &readError) {
     if (!QFile::exists(filePath)) {
@@ -27,15 +26,28 @@ bool SqlReader::readData(const QString filePath, ChartData &data, QString &readE
 
     auto table = tables.first();
     auto query = QSqlQuery {"select * from " + table};
-    ChartDataPoint dataPoint;
-    dataPoint.date = query.value(0).toString();
-    dataPoint.value = query.value(1).toString();
-    data.points.push_back(dataPoint);
+
+    struct avg
+    {
+        float value;
+        int count;
+    };
+    QMap<QString, avg> data1;
     while (query.next()) {
-        dataPoint.date = query.value(0).toString();
-        dataPoint.value = query.value(1).toString();
+        QString date = query.value(0).toString().split(' ').first().split(".").at(2) + "." +
+                query.value(0).toString().split(' ').first().split(".").at(1);
+        float value = query.value(1).toFloat();
+
+        data1[date].value += value;
+        data1[date].count += 1;
+    }
+    ChartDataPoint dataPoint;
+    for(auto pair : data1.toStdMap()) {
+        dataPoint.date = pair.first;
+        dataPoint.value = (pair.second.value) / (pair.second.count);
         data.points.push_back(dataPoint);
     }
+    data.points.push_back(dataPoint);
     dataBase.close();
     return true;
 }

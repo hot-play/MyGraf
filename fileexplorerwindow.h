@@ -9,6 +9,7 @@
 #include <QtWidgets/QGridLayout>
 #include <chartwindow.h>
 #include <QErrorMessage>
+#include <datareader.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui
@@ -28,6 +29,7 @@ signals:
     void dataChangeSignal(ChartData data);
 private slots:
     void on_selectionChangedSlot(const QItemSelection &selected, const QItemSelection &deselected);
+    DataReaderPtr GetReaderByFile(QString filePath);
     bool CheckFileType(QString filePath);
 
 private:

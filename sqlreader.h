@@ -2,9 +2,10 @@
 #define SQLREADER_H
 #include <datareader.h>
 
-class SqlReader: DataReader
+class SqlReader: public DataReader
 {
 public:
+    SqlReader() = default;
     bool readData(QString const filePath, ChartData& data, QString& readError) override;
 };
 

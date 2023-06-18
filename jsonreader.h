@@ -5,6 +5,7 @@
 class JsonReader: public DataReader
 {
 public:
-    bool readData(QString const filePath, ChartData& data, QString& readError);
+    JsonReader() = default;
+    bool readData(QString const filePath, ChartData& data, QString& readError) override;
 };
 #endif // JSONREADER_H

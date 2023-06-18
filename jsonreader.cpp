@@ -29,7 +29,7 @@ bool JsonReader::readData(const QString filePath, ChartData &data, QString &read
             {
                 QJsonObject obj = value.toObject();
                 dataPoint.date = obj["date"].toString();
-                dataPoint.value = obj["value"].toString();
+                dataPoint.value = obj["value"].toDouble();
                 data.points.push_back(dataPoint);
             }
             else {

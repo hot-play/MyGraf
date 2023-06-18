@@ -32,7 +32,8 @@ SOURCES += \
     datareader.cpp \
     jsonreader.cpp \
     csvreader.cpp \
-    sqlreader.cpp
+    sqlreader.cpp \
+    ioc.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -41,7 +42,8 @@ HEADERS += \
     datareader.h \
     jsonreader.h \
     csvreader.h \
-    sqlreader.h
+    sqlreader.h \
+    ioc.h
 
 FORMS += \
         mainwindow.ui
