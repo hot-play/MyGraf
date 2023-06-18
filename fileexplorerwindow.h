@@ -23,9 +23,9 @@ class FileExplorerWindow : public QWidget
     Q_OBJECT
 
 public:
-    FileExplorerWindow(ChartWindow * chartWindow, QWidget *parent = nullptr);
+    FileExplorerWindow(QWidget *parent = nullptr);
 signals:
-    void dataChangeSignal(DataTable data);
+    void dataChangeSignal(ChartData data);
 private slots:
     void on_selectionChangedSlot(const QItemSelection &selected, const QItemSelection &deselected);
     bool CheckFileType(QString filePath);

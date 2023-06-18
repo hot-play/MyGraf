@@ -1,6 +1,6 @@
 #include "csvreader.h"
 
-bool CsvReader::readData(const QString filePath, DataTable &data, QString &readError) {
+bool CsvReader::readData(const QString filePath, ChartData &data, QString &readError) {
     // Открываем и считываем содержимое файла
     QString fileData;
     QFile file;
@@ -15,18 +15,14 @@ bool CsvReader::readData(const QString filePath, DataTable &data, QString &readE
     // Начинаем парсить данные
     QStringList csvData = fileData.split(";");
     bool index = 0;
-    DataList dataList;
-    int id;
-    int key;
+    ChartDataPoint dataPoint;
     foreach (const QString & value, csvData) {
         if (index) {
-            key = value.toInt();
-            QPointF value((qreal) key, (qreal) id);
-            QString label = "Label " + id;
-            dataList << Data(value, label);
+            dataPoint.value = value;
+            data.points.push_back(dataPoint);
             index = !index;
         } else {
-            id = value.toInt();
+            dataPoint.date = value;
             index = !index;
         }
     }
@@ -34,6 +30,5 @@ bool CsvReader::readData(const QString filePath, DataTable &data, QString &readE
         readError = "Файл не корректен";
         return false;
     }
-    data << dataList;
     return true;
 }

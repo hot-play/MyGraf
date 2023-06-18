@@ -20,10 +20,10 @@
 #include <QtWidgets/QGroupBox>
 #include <QtWidgets/QLabel>
 
-#include <JsonReader.h>
+#include <sqlreader.h>
 #include <chartwindow.h>
 
-FileExplorerWindow::FileExplorerWindow(ChartWindow * chartWindow, QWidget *parent)
+FileExplorerWindow::FileExplorerWindow(QWidget *parent)
     : QWidget(parent)
 {
     //Устанавливаем размер главного окна
@@ -32,8 +32,9 @@ FileExplorerWindow::FileExplorerWindow(ChartWindow * chartWindow, QWidget *paren
     // Определим  файловой системы:
     leftPartModel =  new QFileSystemModel(this);
     QStringList filters;
-        filters << "*.txt" << "*.csv" << "*.json";
+        filters << "*.sqlite" << "*.csv" << "*.json";
     leftPartModel->setNameFilters(filters);
+    leftPartModel->setNameFilterDisables(false);
     leftPartModel->setRootPath(homePath);
     //Показатьв виде "дерева". Пользуемся готовым видом(TreeView):
     treeView = new QTreeView();
@@ -57,7 +58,6 @@ FileExplorerWindow::FileExplorerWindow(ChartWindow * chartWindow, QWidget *paren
             this, SLOT(on_selectionChangedSlot(const QItemSelection &, const QItemSelection &)));*/
     errorMessager = new QErrorMessage(this);
     connect(selectionModel, &QItemSelectionModel::selectionChanged, this, &FileExplorerWindow::on_selectionChangedSlot);
-    connect(this, &FileExplorerWindow::dataChangeSignal, chartWindow, &ChartWindow::switchData);
     //Пример организации установки курсора в TreeView относительно модельного индекса
     QItemSelection toggleSelection;
     //Объявили модельный индекс topLeft
@@ -78,9 +78,9 @@ void FileExplorerWindow::on_selectionChangedSlot(const QItemSelection &selected,
     QString filePath = leftPartModel->filePath(indexs.constFirst());
     if (CheckFileType(filePath)) {
         // Подключение слота
-        DataTable data;
+        ChartData data;
         QString error;
-        JsonReader reader;
+        SqlReader reader;
         bool readResult = reader.readData(filePath, data, error);
         if (readResult) {
             dataChangeSignal(data);
@@ -92,7 +92,7 @@ void FileExplorerWindow::on_selectionChangedSlot(const QItemSelection &selected,
 
 bool FileExplorerWindow::CheckFileType(QString filePath) {
     QFileInfo file(filePath);
-    if ((file.suffix() == "csv") || (file.suffix() == "json"))
+    if ((file.suffix() == "csv") || (file.suffix() == "json") || (file.suffix() == "sqlite"))
         return true;
     return false;
 }

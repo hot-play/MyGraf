@@ -5,7 +5,7 @@
 class CsvReader: public DataReader
 {
 public:
-    bool readData(QString const filePath, DataTable& data, QString& readError) override;
+    bool readData(QString const filePath, ChartData& data, QString& readError) override;
 };
 
 #endif // CSVREADER_H

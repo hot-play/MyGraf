@@ -15,10 +15,12 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
     chartWindow = new ChartWindow(this);
-    fileExplorerWindow = new FileExplorerWindow(chartWindow, this);
+    fileExplorerWindow = new FileExplorerWindow(this);
+    connect(fileExplorerWindow, &FileExplorerWindow::dataChangeSignal, chartWindow, &ChartWindow::switchData);
     setWindowTitle(QString("MyGraf"));
     //Устанавливаем размер главного окна
-    this->setGeometry(100, 100, 1500, 1000);
+    this->setMinimumSize(1000, 600);
+    this->setWindowState(Qt::WindowMaximized);
     QSplitter *splitter = new QSplitter(parent);
     splitter->addWidget(fileExplorerWindow);
     splitter->addWidget(chartWindow);

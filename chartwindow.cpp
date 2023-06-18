@@ -25,7 +25,6 @@
 
 ChartWindow::ChartWindow(QWidget *parent) :
     QWidget(parent),
-    m_dataTable(generateRandomData(3, 10, 7)),
     m_themeComboBox(createThemeBox()),
     m_typeComboBox(createTypeBox())
 {
@@ -43,7 +42,7 @@ ChartWindow::ChartWindow(QWidget *parent) :
     //create charts
 
     QChartView *chartView;
-    chartView = new QChartView(createAreaChart());
+    chartView = new QChartView(createPieChart());
     m_baseLayout->addWidget(chartView, 1, 0);
     m_charts = chartView;
 
@@ -61,49 +60,6 @@ void ChartWindow::connectSignals()
             this, &ChartWindow::switchType);
 }
 
-DataTable ChartWindow::generateRandomData(int listCount, int valueMax, int valueCount) const
-{
-    DataTable dataTable;
-
-    // set seed for random stuff
-    qsrand(QTime(0, 0, 0).secsTo(QTime::currentTime()));
-
-    // generate random data
-    for (int i(0); i < listCount; i++) {
-        DataList dataList;
-        qreal yValue(0);
-        for (int j(0); j < valueCount; j++) {
-            yValue = yValue + (qreal)(qrand() % valueMax) / (qreal) valueCount;
-            QPointF value((j + (qreal) rand() / (qreal) RAND_MAX) * ((qreal) 3 / (qreal) valueCount),
-                          yValue);
-            QString label = "Slice " + QString::number(i) + ":" + QString::number(j);
-            dataList << Data(value, label);
-        }
-        dataTable << dataList;
-    }
-
-    return dataTable;
-}
-/*
-void ChartWindow::fillData() const
-{
-    DataTable dataTable;
-
-    for (int i(0); i < listCount; i++) {
-        DataList dataList;
-        qreal yValue(0);
-        for (int j(0); j < valueCount; j++) {
-            yValue = yValue + (qreal);
-            QPointF value(yValue, yValue);
-            QString label = "Slice ";
-            dataList << Data(value, label);
-        }
-        dataTable << dataList;
-    }
-
-    return dataTable;
-}
-*/
 QComboBox *ChartWindow::createThemeBox() const
 {
     // settings layout
@@ -116,145 +72,76 @@ QComboBox *ChartWindow::createThemeBox() const
 QComboBox *ChartWindow::createTypeBox() const
 {
     QComboBox *typeComboBox = new QComboBox();
-    typeComboBox->addItem("Area Chart", 1);
-    typeComboBox->addItem("Bar Chart", 2);
-    typeComboBox->addItem("Line Chart", 3);
-    typeComboBox->addItem("Pie Chart", 4);
-    typeComboBox->addItem("Spline Chart", 5);
-    typeComboBox->addItem("Scatter Chart", 6);
+    typeComboBox->addItem("Line Chart", 1);
+    typeComboBox->addItem("Pie Chart", 2);
+    typeComboBox->addItem("Bar Chart", 3);
     return typeComboBox;
-}
-
-QChart *ChartWindow::createAreaChart() const
-{
-    QChart *chart = new QChart();
-    chart->setTitle("Area chart");
-
-    // The lower series initialized to zero values
-    QLineSeries *lowerSeries = nullptr;
-    QString name("Series ");
-    int nameIndex = 0;
-    for (int i(0); i < m_dataTable.count(); i++) {
-        QLineSeries *upperSeries = new QLineSeries(chart);
-        for (int j(0); j < m_dataTable[i].count(); j++) {
-            Data data = m_dataTable[i].at(j);
-            if (lowerSeries) {
-                const QVector<QPointF>& points = lowerSeries->pointsVector();
-                upperSeries->append(QPointF(j, points[i].y() + data.first.y()));
-            } else {
-                upperSeries->append(QPointF(j, data.first.y()));
-            }
-        }
-        QAreaSeries *area = new QAreaSeries(upperSeries, lowerSeries);
-        area->setName(name + QString::number(nameIndex));
-        nameIndex++;
-        chart->addSeries(area);
-        chart->createDefaultAxes();
-        lowerSeries = upperSeries;
-    }
-
-    return chart;
-}
-
-QChart *ChartWindow::createBarChart(int valueCount) const
-{
-    Q_UNUSED(valueCount);
-    QChart *chart = new QChart();
-    chart->setTitle("Bar chart");
-
-    QStackedBarSeries *series = new QStackedBarSeries(chart);
-    for (int i(0); i < m_dataTable.count(); i++) {
-        QBarSet *set = new QBarSet("Bar set " + QString::number(i));
-        for (const Data &data : m_dataTable[i])
-            *set << data.first.y();
-        series->append(set);
-    }
-    chart->addSeries(series);
-    chart->createDefaultAxes();
-
-    return chart;
 }
 
 QChart *ChartWindow::createLineChart() const
 {
+    auto series = new QLineSeries();
     QChart *chart = new QChart();
-    chart->setTitle("Line chart");
 
-    QString name("Series ");
-    int nameIndex = 0;
-    for (const DataList &list : m_dataTable) {
-        QLineSeries *series = new QLineSeries(chart);
-        for (const Data &data : list)
-            series->append(data.first);
-        series->setName(name + QString::number(nameIndex));
-        nameIndex++;
-        chart->addSeries(series);
+    for (auto point: chartData.points) {
+        bool okx = true;
+        bool oky = true;
+
+        float x, y;
+
+        auto date = QDateTime {{QDate::fromString(point.date, "yyyy.MM")}};
+
+        if (date.isValid()) {
+            x = (float) date.toMSecsSinceEpoch();
+        } else {
+            x = point.date.toFloat(&okx);
+        }
+
+        y = point.value.toFloat(&oky);
+
+        if (okx && oky) {
+            series->append({x, y});
+        }
     }
-    chart->createDefaultAxes();
+
+    chart->addSeries(series);
+    chart->legend()->hide();
 
     return chart;
 }
 
 QChart *ChartWindow::createPieChart() const
 {
-    QChart *chart = new QChart();
-    chart->setTitle("Pie chart");
+    auto series = new QPieSeries();
 
-    qreal pieSize = 1.0 / m_dataTable.count();
-    for (int i = 0; i < m_dataTable.count(); i++) {
-        QPieSeries *series = new QPieSeries(chart);
-        for (const Data &data : m_dataTable[i]) {
-            QPieSlice *slice = series->append(data.second, data.first.y());
-            if (data == m_dataTable[i].first()) {
-                slice->setLabelVisible();
-                slice->setExploded();
-            }
-        }
-        qreal hPos = (pieSize / 2) + (i / (qreal) m_dataTable.count());
-        series->setPieSize(pieSize);
-        series->setHorizontalPosition(hPos);
-        series->setVerticalPosition(0.5);
-        chart->addSeries(series);
+    QChart *chart = new QChart();
+    chart->setTitle(chartData.chartTitle);
+
+    for (auto point: chartData.points) {
+        auto value {point.value.toFloat()};
+        series->append(point.date, value);
     }
+
+    chart->addSeries(series);
+    chart->legend()->show();
 
     return chart;
 }
 
-QChart *ChartWindow::createSplineChart() const
+QChart *ChartWindow::createBarChart(int count) const
 {
-    // spine chart
+    auto series = new QBarSeries {};
     QChart *chart = new QChart();
-    chart->setTitle("Spline chart");
-    QString name("Series ");
-    int nameIndex = 0;
-    for (const DataList &list : m_dataTable) {
-        QSplineSeries *series = new QSplineSeries(chart);
-        for (const Data &data : list)
-            series->append(data.first);
-        series->setName(name + QString::number(nameIndex));
-        nameIndex++;
-        chart->addSeries(series);
+    for (auto point: chartData.points) {
+        auto value {point.value.toFloat()};
+        auto barSet = new QBarSet {point.date};
+        barSet->append(value);
+        series->append(barSet);
     }
-    chart->createDefaultAxes();
-    return chart;
-}
 
-QChart *ChartWindow::createScatterChart() const
-{
-    // scatter chart
-    QChart *chart = new QChart();
-    chart->setTitle("Scatter chart");
-    QString name("Series ");
-    int nameIndex = 0;
-    for (const DataList &list : m_dataTable) {
-        QScatterSeries *series = new QScatterSeries(chart);
-        for (const Data &data : list)
-            series->append(data.first);
-        series->setName(name + QString::number(nameIndex));
-        nameIndex++;
-        chart->addSeries(series);
-    }
-    chart->createDefaultAxes();
+    chart->legend()->show();
+    chart->addSeries(series);
+
     return chart;
 }
 
@@ -264,17 +151,12 @@ void ChartWindow::switchType()
                 m_typeComboBox->itemData(m_typeComboBox->currentIndex()).toInt());
     QChartView * chart;
     if (type == 1) {
-        chart = new QChartView(createAreaChart());
-    } else if (type == 2) {
-        chart = new QChartView(createBarChart(3));
-    } else if (type == 3) {
         chart = new QChartView(createLineChart());
-    } else if (type == 4) {
+    }
+    else if (type == 2) {
         chart = new QChartView(createPieChart());
-    } else if (type == 5) {
-        chart = new QChartView(createSplineChart());
-    } else if (type == 6) {
-        chart = new QChartView(createScatterChart());
+    } else if (type == 3) {
+        chart = new QChartView(createBarChart(chartData.points.count()));
     }
     delete m_charts;
     m_charts = chart;
@@ -283,8 +165,8 @@ void ChartWindow::switchType()
     updateUI();
 }
 
-void ChartWindow::switchData(DataTable data) {
-    m_dataTable = data;
+void ChartWindow::switchData(ChartData data) {
+    chartData = data;
     switchType();
     updateUI();
 }

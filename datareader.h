@@ -5,7 +5,7 @@
 class DataReader
 {
 public:
-    virtual bool readData(QString const filePath, DataTable& data, QString& readError) = 0;
+    virtual bool readData(QString const filePath, ChartData& data, QString& readError) = 0;
 };
 
 #endif // DATAREADER_H

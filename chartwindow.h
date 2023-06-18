@@ -21,11 +21,18 @@ class QChartView;
 class QChart;
 QT_CHARTS_END_NAMESPACE
 
-typedef QPair<QPointF, QString> Data;
-typedef QList<Data> DataList;
-typedef QList<DataList> DataTable;
-
 QT_CHARTS_USE_NAMESPACE
+
+
+struct ChartDataPoint {
+    QString date;
+    QString value;
+};
+
+struct ChartData {
+    QString chartTitle;
+    QVector<ChartDataPoint> points;
+};
 
 class WidgetChart:public QWidget
 {
@@ -43,23 +50,19 @@ private Q_SLOTS:
     void updateUI();
     void switchType();
 private:
-    DataTable generateRandomData(int listCount, int valueMax, int valueCount) const;
     QComboBox *createThemeBox() const;
     QComboBox *createTypeBox() const;
     void connectSignals();
 public:
-    QChart *createAreaChart() const;
     QChart *createBarChart(int valueCount) const;
     QChart *createPieChart() const;
     QChart *createLineChart() const;
-    QChart *createSplineChart() const;
-    QChart *createScatterChart() const;
 public slots:
-    void switchData(DataTable data);
+    void switchData(ChartData data);
 private:
     QGridLayout *m_baseLayout;
     QChartView *m_charts;
-    DataTable m_dataTable;
+    ChartData chartData;
     QComboBox *m_themeComboBox;
     QComboBox *m_typeComboBox;
 };

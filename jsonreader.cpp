@@ -5,7 +5,7 @@
 #include <QJsonValue>
 #include <QJsonParseError>
 
-bool JsonReader::readData(const QString filePath, DataTable &data, QString &readError) {
+bool JsonReader::readData(const QString filePath, ChartData &data, QString &readError) {
     // Открываем и считываем содержимое файла
     QString fileData;
     QFile file;
@@ -23,25 +23,20 @@ bool JsonReader::readData(const QString filePath, DataTable &data, QString &read
     if (doc.isObject()) {
         QJsonObject jsonData = doc.object();
         QJsonArray jsonArray = jsonData["chartData"].toArray();
-        DataList dataList;
+        ChartDataPoint dataPoint;
         foreach (const QJsonValue & value, jsonArray) {
             if (value.isObject())
             {
                 QJsonObject obj = value.toObject();
-                int id = obj["id"].toInt();
-                int key = obj["key"].toInt();
-                QPointF value((qreal) key, (qreal) id);
-                QString label = "Label " + id;
-                dataList << Data(value, label);
+                dataPoint.date = obj["date"].toString();
+                dataPoint.value = obj["value"].toString();
+                data.points.push_back(dataPoint);
             }
             else {
                 readError = "Ошибка при чтении файла";
                 return false;
             }
         }
-        data << dataList;
-        return true;
     }
-    readError = error.errorString();
-    return false;
+    return true;
 }
