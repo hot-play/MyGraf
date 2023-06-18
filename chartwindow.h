@@ -10,6 +10,7 @@
 #include <QTreeView>
 #include <QTableView>
 #include <QtWidgets/QGridLayout>
+#include <QPushButton>
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
@@ -55,18 +56,20 @@ private:
     QComboBox *createThemeBox() const;
     QComboBox *createTypeBox() const;
     void connectSignals();
-public:
-    QChart *createBarChart(int valueCount) const;
+    QChart *createBarChart() const;
     QChart *createPieChart() const;
     QChart *createLineChart() const;
+    QPushButton *createPushButton() const;
 public slots:
     void switchData(ChartData data);
+    void printChartToPdf() const;
 private:
-    QGridLayout *m_baseLayout;
-    QChartView *m_charts;
+    QGridLayout *baseLayout;
+    QChartView *charts;
     ChartData chartData;
-    QComboBox *m_themeComboBox;
-    QComboBox *m_typeComboBox;
+    QComboBox *themeComboBox;
+    QComboBox *typeComboBox;
+    QPushButton *saveButton;
 };
 
 #endif // CHARTWINDOW_H

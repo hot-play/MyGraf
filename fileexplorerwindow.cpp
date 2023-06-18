@@ -66,9 +66,6 @@ FileExplorerWindow::FileExplorerWindow(QWidget *parent)
 
 void FileExplorerWindow::on_selectionChangedSlot(const QItemSelection &selected, const QItemSelection &deselected)
 {
-    //Q_UNUSED(selected);
-    Q_UNUSED(deselected);
-
     QModelIndexList indexs =  selected.indexes();
 
     QString filePath = leftPartModel->filePath(indexs.constFirst());
