@@ -47,6 +47,9 @@ bool JsonReader::readData(const QString filePath, ChartData &data, QString &read
             dataPoint.value = (pair.second.value) / (pair.second.count);
             data.points.push_back(dataPoint);
         }
+    } else {
+        readError = "Ошибка чтения файла";
+        return false;
     }
     return true;
 }
