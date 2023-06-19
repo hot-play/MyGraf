@@ -14,6 +14,14 @@ bool CsvReader::readData(const QString filePath, ChartData &data, QString &readE
     file.close();
     // Начинаем парсить данные
     QStringList csvData = fileData.split("\n");
+    if (csvData.empty()) {
+        readError = "Ошибка чтения файла";
+        return false;
+    }
+    if (csvData.count() <= 1) {
+        readError = "Ошибка содержимого файла";
+        return false;
+    }
     QMap<QString, forAvgComputingValue> dataMap;
     foreach (const QString & csvStroke, csvData) {
         QString csvDate = csvStroke.split(',').at(0);
