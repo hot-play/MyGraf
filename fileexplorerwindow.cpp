@@ -31,10 +31,8 @@
 FileExplorerWindow::FileExplorerWindow(QWidget *parent)
     : QWidget(parent)
 {
-    //Устанавливаем размер главного окна
-    baseLayout = new QGridLayout();
     QString homePath = QDir::homePath();
-    // Определим  файловой системы:
+    // Определим  файловую систему:
     leftPartModel =  new QFileSystemModel(this);
     QStringList filters;
         filters << "*.sqlite" << "*.csv" << "*.json";
@@ -42,18 +40,20 @@ FileExplorerWindow::FileExplorerWindow(QWidget *parent)
     leftPartModel->setNameFilterDisables(false);
     leftPartModel->setRootPath(homePath);
     //Показатьв виде "дерева". Пользуемся готовым видом(TreeView):
-    treeView = new QTreeView();
+    treeView = new QTreeView(this);
     // Устанавливаем модель данных для отображения
     treeView->setModel(leftPartModel);
     //Раскрываем все папки первого уровня
     treeView->expandAll();
-    // Создаем объект "сплиттер(разделитель)"
+
+    baseLayout = new QGridLayout(this);
     baseLayout->addWidget(treeView);
     setLayout(baseLayout);
     QItemSelectionModel *selectionModel = treeView->selectionModel();
     treeView->header()->resizeSection(0, 200);
     errorMessager = new QErrorMessage(this);
-    connect(selectionModel, &QItemSelectionModel::selectionChanged, this, &FileExplorerWindow::on_selectionChangedSlot);
+    // Подключим сигнал
+    connect(selectionModel, &QItemSelectionModel::selectionChanged, this, &FileExplorerWindow::selectionFile);
     //Пример организации установки курсора в TreeView относительно модельного индекса
     QItemSelection toggleSelection;
     //Объявили модельный индекс topLeft
@@ -64,7 +64,7 @@ FileExplorerWindow::FileExplorerWindow(QWidget *parent)
     selectionModel->select(toggleSelection, QItemSelectionModel::Toggle);
 }
 
-void FileExplorerWindow::on_selectionChangedSlot(const QItemSelection &selected, const QItemSelection &deselected)
+void FileExplorerWindow::selectionFile(const QItemSelection &selected)
 {
     QModelIndexList indexs =  selected.indexes();
 

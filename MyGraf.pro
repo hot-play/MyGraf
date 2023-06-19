@@ -9,6 +9,7 @@ QT       += core gui
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 QT += charts
 QT += sql
+QT += printsupport
 TARGET = MyGraf
 TEMPLATE = app
 
@@ -29,7 +30,6 @@ SOURCES += \
         mainwindow.cpp \
     chartwindow.cpp \
     fileexplorerwindow.cpp \
-    datareader.cpp \
     jsonreader.cpp \
     csvreader.cpp \
     sqlreader.cpp \
@@ -43,7 +43,8 @@ HEADERS += \
     jsonreader.h \
     csvreader.h \
     sqlreader.h \
-    ioc.h
+    ioc.h \
+    chartdata.h
 
 FORMS += \
         mainwindow.ui

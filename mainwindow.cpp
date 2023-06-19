@@ -9,11 +9,8 @@ class QChartView;
 class QChart;
 QT_CHARTS_END_NAMESPACE
 
-MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent)
-    , ui(new Ui::MainWindow)
+MainWindow::MainWindow()
 {
-    ui->setupUi(this);
     chartWindow = new ChartWindow(this);
     fileExplorerWindow = new FileExplorerWindow(this);
     connect(fileExplorerWindow, &FileExplorerWindow::dataChangeSignal, chartWindow, &ChartWindow::switchData);
@@ -21,15 +18,11 @@ MainWindow::MainWindow(QWidget *parent)
     //Устанавливаем размер главного окна
     this->setMinimumSize(1000, 600);
     this->setWindowState(Qt::WindowMaximized);
-    QSplitter *splitter = new QSplitter(parent);
+    QSplitter *splitter = new QSplitter(this);
     splitter->addWidget(fileExplorerWindow);
     splitter->addWidget(chartWindow);
+    splitter->setStyleSheet("QSplitter::background-color: rgb(255, 255, 255);");
     setCentralWidget(splitter);
-}
-
-MainWindow::~MainWindow()
-{
-    delete ui;
 }
 
 

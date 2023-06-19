@@ -1,9 +1,13 @@
 #ifndef DATAREADER_H
 #define DATAREADER_H
-#include <chartwindow.h>
+#include <chartdata.h>
+#include <QString>
+#include <QMap>
+#include <QFile>
+#include <QVariant>
 #include <memory>
 
-struct avg
+struct forAvgComputingValue
 {
     float value;
     int count;

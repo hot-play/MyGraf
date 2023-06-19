@@ -22,22 +22,21 @@ class FileExplorerWindow : public QWidget
 
 {
     Q_OBJECT
-
-public:
-    FileExplorerWindow(QWidget *parent = nullptr);
-signals:
-    void dataChangeSignal(ChartData data);
-private slots:
-    void on_selectionChangedSlot(const QItemSelection &selected, const QItemSelection &deselected);
-    DataReaderPtr GetReaderByFile(QString filePath);
-    bool CheckFileType(QString filePath);
-
 private:
     QErrorMessage * errorMessager;
     QGridLayout * baseLayout;
     QStatusBar * statusBar;
-    QFileSystemModel *leftPartModel;
-    QTreeView *treeView;
+    QFileSystemModel * leftPartModel;
+    QTreeView * treeView;
+public:
+    explicit FileExplorerWindow(QWidget *parent = nullptr);
+private:
+    DataReaderPtr GetReaderByFile(QString filePath);
+    bool CheckFileType(QString filePath);
+signals:
+    void dataChangeSignal(ChartData data);
+private slots:
+    void selectionFile(const QItemSelection &selected);
 };
 
 #endif // FILEEXPLORERWINDOW_H
