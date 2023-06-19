@@ -25,7 +25,6 @@ class FileExplorerWindow : public QWidget
 private:
     QErrorMessage * errorMessager;
     QGridLayout * baseLayout;
-    QStatusBar * statusBar;
     QFileSystemModel * leftPartModel;
     QTreeView * treeView;
 public:

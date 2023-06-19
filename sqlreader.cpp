@@ -5,14 +5,13 @@
 #include <QSqlDatabase>
 
 bool SqlReader::readData(const QString filePath, ChartData &data, QString &readError) {
-    if (!QFile::exists(filePath)) {
-        readError = "Файл не существует";
+    if (!tryOpenFile(filePath)) {
+        readError = "Файл не может быть открыт";
         return false;
     }
     auto static dataBase = QSqlDatabase::addDatabase("QSQLITE");
 
     dataBase.setDatabaseName(filePath);
-
     if (!dataBase.open()) {
         readError = "База данных повреждена";
         return false;
@@ -29,10 +28,13 @@ bool SqlReader::readData(const QString filePath, ChartData &data, QString &readE
 
     QMap<QString, forAvgComputingValue> dataMap;
     while (query.next()) {
+        if (query.value(0).toString().split(' ').first().split(".").at(1).toInt() > 12) {
+            readError = "Некорректный формат";
+            return false;
+        }
         QString date = query.value(0).toString().split(' ').first().split(".").at(2) + "." +
                 query.value(0).toString().split(' ').first().split(".").at(1);
         float value = query.value(1).toFloat();
-
         dataMap[date].value += value;
         dataMap[date].count += 1;
     }
@@ -45,5 +47,6 @@ bool SqlReader::readData(const QString filePath, ChartData &data, QString &readE
         data.points.push_back(dataPoint);
     }
     dataBase.close();
+    data.chartTitle = filePath.split('/').last();
     return true;
 }

@@ -10,9 +10,9 @@ bool JsonReader::readData(const QString filePath, ChartData &data, QString &read
     QString fileData;
     QFile file;
     file.setFileName(filePath);
-    if (!file.open(QFile::ReadOnly | QFile::Text)) {
-            readError = "Файл не может быть открыт";
-            return false;
+    if (!tryOpenFile(filePath)) {
+        readError = "Файл не может быть открыт";
+        return false;
     }
     file.open(QIODevice::ReadOnly | QIODevice::Text);
     fileData = file.readAll();
@@ -23,6 +23,10 @@ bool JsonReader::readData(const QString filePath, ChartData &data, QString &read
     if (doc.isObject()) {
         QJsonObject jsonData = doc.object();
         QJsonArray jsonArray = jsonData["chartData"].toArray();
+        if (jsonArray.isEmpty()) {
+            readError = "В файле нет массива chartData, формат не поддерживается";
+            return false;
+        }
         QMap<QString, forAvgComputingValue> dataMap;
         foreach (const QJsonValue & value, jsonArray) {
             if (value.isObject())
@@ -47,6 +51,7 @@ bool JsonReader::readData(const QString filePath, ChartData &data, QString &read
             dataPoint.value = (pair.second.value) / (pair.second.count);
             data.points.push_back(dataPoint);
         }
+        data.chartTitle = filePath.split('/').last();
     } else {
         readError = "Ошибка чтения файла";
         return false;

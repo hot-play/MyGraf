@@ -75,6 +75,7 @@ ChartWindow::ChartWindow(QWidget *parent) :
 QChart *ChartWindow::createLineChart() const
 {
     QChart * newChart = new QChart();
+    newChart->setTitle(chartData.chartTitle);
     auto series = new QLineSeries (newChart);
     // Записываем все данные в серии
     for (auto point: chartData.points) {
@@ -111,6 +112,7 @@ QChart *ChartWindow::createLineChart() const
 QChart *ChartWindow::createPieChart() const
 {
     QChart * newChart = new QChart();
+    newChart->setTitle(chartData.chartTitle);
     auto series = new QPieSeries (newChart);
     // Записываем все данные в серии
     for (auto point: chartData.points) {
@@ -127,6 +129,7 @@ QChart *ChartWindow::createPieChart() const
 QChart *ChartWindow::createBarChart() const
 {
     QChart *newChart = new QChart();
+    newChart->setTitle(chartData.chartTitle);
     auto series = new QBarSeries (newChart);
     // Записываем все данные в серии
     for (auto point: chartData.points) {
