@@ -9,5 +9,4 @@
 
 
 UML-диаграмма
-![Uploading uml.drawio (4).png…]()
-
+![uml drawio (5)](https://github.com/hot-play/MyGraf/assets/95357084/eebaf121-34e5-4410-b6b6-773ad063d984)
