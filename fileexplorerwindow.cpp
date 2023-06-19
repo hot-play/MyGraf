@@ -40,13 +40,13 @@ FileExplorerWindow::FileExplorerWindow(QWidget *parent)
     leftPartModel->setNameFilterDisables(false);
     leftPartModel->setRootPath(homePath);
     //Показатьв виде "дерева". Пользуемся готовым видом(TreeView):
-    treeView = new QTreeView();
+    treeView = new QTreeView(this);
     // Устанавливаем модель данных для отображения
     treeView->setModel(leftPartModel);
     //Раскрываем все папки первого уровня
     treeView->expandAll();
 
-    baseLayout = new QGridLayout();
+    baseLayout = new QGridLayout(this);
     baseLayout->addWidget(treeView);
     setLayout(baseLayout);
     QItemSelectionModel *selectionModel = treeView->selectionModel();

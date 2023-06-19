@@ -26,10 +26,10 @@ private:
     QErrorMessage * errorMessager;
     QGridLayout * baseLayout;
     QStatusBar * statusBar;
-    QFileSystemModel *leftPartModel;
-    QTreeView *treeView;
+    QFileSystemModel * leftPartModel;
+    QTreeView * treeView;
 public:
-    FileExplorerWindow(QWidget *parent = nullptr);
+    explicit FileExplorerWindow(QWidget *parent = nullptr);
 private:
     DataReaderPtr GetReaderByFile(QString filePath);
     bool CheckFileType(QString filePath);

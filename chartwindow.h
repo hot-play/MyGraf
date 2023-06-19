@@ -25,12 +25,12 @@ class ChartWindow: public QWidget
 {
     Q_OBJECT
 private:
-    QGridLayout *baseLayout;
-    QChartView *charts;
+    QGridLayout * baseLayout;
+    QChartView * chart;
     ChartData chartData;
-    QComboBox *themeComboBox;
-    QComboBox *typeComboBox;
-    QPushButton *saveButton;
+    QComboBox * themeComboBox;
+    QComboBox * typeComboBox;
+    QPushButton * saveButton;
 public:
     explicit ChartWindow(QWidget *parent = nullptr);
 private:
@@ -41,7 +41,6 @@ public slots:
     void switchData(ChartData data);
     void printChartToPdf() const;
 private slots:
-    void updateUI();
     void switchType();
 };
 

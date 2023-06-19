@@ -3,7 +3,6 @@
 #include <QSqlQuery>
 #include <QSqlRecord>
 #include <QSqlDatabase>
-#include <QMap>
 
 bool SqlReader::readData(const QString filePath, ChartData &data, QString &readError) {
     if (!QFile::exists(filePath)) {
@@ -28,7 +27,7 @@ bool SqlReader::readData(const QString filePath, ChartData &data, QString &readE
     auto table = tables.first();
     auto query = QSqlQuery {"select * from " + table};
 
-    QMap<QString, avg> dataMap;
+    QMap<QString, forAvgComputingValue> dataMap;
     while (query.next()) {
         QString date = query.value(0).toString().split(' ').first().split(".").at(2) + "." +
                 query.value(0).toString().split(' ').first().split(".").at(1);

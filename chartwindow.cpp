@@ -5,6 +5,7 @@
 #include <QtCharts/QAbstractBarSeries>
 #include <QtCharts/QPercentBarSeries>
 #include <QtCharts/QStackedBarSeries>
+#include <QtCharts/QBarCategoryAxis>
 #include <QtCharts/QBarSeries>
 #include <QtCharts/QBarSet>
 #include <QtCharts/QLineSeries>
@@ -19,43 +20,44 @@
 #include <QtWidgets/QCheckBox>
 #include <QtWidgets/QGroupBox>
 #include <QtWidgets/QLabel>
+
 #include <QtCore/QTime>
-#include <QtCharts/QBarCategoryAxis>
 #include <QDate>
 #include <QDateTime>
 #include <QDateTimeAxis>
 #include <QValueAxis>
+
+#include <QPrinter>
 #include <QPainter>
 #include <QPdfWriter>
+#include <QtPrintSupport/QPrintDialog>
+#include <QtPrintSupport/QPrinter>
 
 ChartWindow::ChartWindow(QWidget *parent) :
     QWidget(parent)
 {
     // Создадим лайаут
     baseLayout = new QGridLayout(this);
-    QHBoxLayout *settingsLayout = new QHBoxLayout(this);
-    // Добавим список с темами графиков
-    settingsLayout->addWidget(new QLabel("Тема:", this));
-    themeComboBox = new QComboBox();
-    themeComboBox->addItem("Color", QChart::ChartThemeLight);
-    themeComboBox->addItem("White-Black", QChart::ChartThemeDark);
-    settingsLayout->addWidget(themeComboBox);
+    QHBoxLayout * settingsLayout = new QHBoxLayout(this);
     // Добавим список с типами графиков
     settingsLayout->addWidget(new QLabel("Тип графика:", this));
-    typeComboBox = new QComboBox();
+    typeComboBox = new QComboBox(this);
     typeComboBox->addItem("Линейный график", 1);
     typeComboBox->addItem("Круговой график", 2);
     typeComboBox->addItem("Столбчатый график", 3);
     settingsLayout->addWidget(typeComboBox);
+    // Добавим список с темами графиков
+    settingsLayout->addWidget(new QLabel("Цвет печати:", this));
+    themeComboBox = new QComboBox(this);
+    themeComboBox->addItem("Цветной", 1);
+    themeComboBox->addItem("Черно-белый", 2);
+    settingsLayout->addWidget(themeComboBox);
     // Добавим кнопку сохранения файла
-    saveButton = new QPushButton("Сохранить");
+    saveButton = new QPushButton("Сохранить", this);
     settingsLayout->addWidget(saveButton);
     settingsLayout->addStretch();
 
     // Подключим сигналы
-    connect(themeComboBox,
-            static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
-            this, &ChartWindow::updateUI);
     connect(typeComboBox,
             static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
             this, &ChartWindow::switchType);
@@ -65,16 +67,15 @@ ChartWindow::ChartWindow(QWidget *parent) :
 
     // Отрисуем все копмоненты
     baseLayout->addLayout(settingsLayout, 0, 0, 1, 3);
-    charts = new QChartView(this);
-    baseLayout->addWidget(charts, 1, 0);
+    chart = new QChartView(this);
+    baseLayout->addWidget(chart, 1, 0);
     setLayout(baseLayout);
-    updateUI();
 }
 
 QChart *ChartWindow::createLineChart() const
 {
-    QChart * chart = new QChart();
-    auto series = new QLineSeries (chart);
+    QChart * newChart = new QChart();
+    auto series = new QLineSeries (newChart);
 
     for (auto point: chartData.points) {
         float x, y;
@@ -85,106 +86,99 @@ QChart *ChartWindow::createLineChart() const
         series->append({x, y});
     }
 
-    chart->addSeries(series);
-    chart->legend()->hide();
+    newChart->addSeries(series);
+    newChart->legend()->hide();
 
-    auto dateTimeAxis = new QDateTimeAxis (chart);
+    auto dateTimeAxis = new QDateTimeAxis (newChart);
     dateTimeAxis->setTitleText(chartData.dateAxisTitle);
-    auto valueAxis = new QValueAxis (chart);
+    auto valueAxis = new QValueAxis (newChart);
     valueAxis->setTitleText(chartData.valueAxisTitle);
 
     dateTimeAxis->setFormat("yyyy.MM");
     dateTimeAxis->setTickCount(7);
 
-    chart->addAxis(dateTimeAxis, Qt::AlignBottom);
-    chart->addAxis(valueAxis, Qt::AlignLeft);
+    newChart->addAxis(dateTimeAxis, Qt::AlignBottom);
+    newChart->addAxis(valueAxis, Qt::AlignLeft);
 
     series->attachAxis(dateTimeAxis);
     series->attachAxis(valueAxis);
 
-    return chart;
+    return newChart;
 }
 
 QChart *ChartWindow::createPieChart() const
 {
-    QChart * chart = new QChart();
-    auto series = new QPieSeries (chart);
+    QChart * newChart = new QChart();
+    auto series = new QPieSeries (newChart);
 
     for (auto point: chartData.points) {
         float value {point.value};
         series->append(point.date, value);
     }
 
-    chart->addSeries(series);
-    chart->legend()->show();
+    newChart->addSeries(series);
+    newChart->legend()->show();
 
-    return chart;
+    return newChart;
 }
 
 QChart *ChartWindow::createBarChart() const
 {
-    QChart *chart = new QChart();
-    auto series = new QBarSeries (chart);
+    QChart *newChart = new QChart();
+    auto series = new QBarSeries (newChart);
     for (auto point: chartData.points) {
         auto value {point.value};
-        auto barSet = new QBarSet (point.date, chart);
+        auto barSet = new QBarSet (point.date, newChart);
         barSet->append(value);
         series->append(barSet);
     }
-    auto valueAxis = new QValueAxis(chart);
+    auto valueAxis = new QValueAxis(newChart);
     valueAxis->setTitleText(chartData.valueAxisTitle);
-    chart->legend()->show();
-    chart->addSeries(series);
-    chart->addAxis(valueAxis, Qt::AlignLeft);
+    newChart->legend()->show();
+    newChart->addSeries(series);
+    newChart->addAxis(valueAxis, Qt::AlignLeft);
     series->attachAxis(valueAxis);
-    return chart;
+    return newChart;
 }
 
 void ChartWindow::switchType()
 {
     QChart::ChartTheme type = static_cast<QChart::ChartTheme>(
                 typeComboBox->itemData(typeComboBox->currentIndex()).toInt());
-    QChartView * chart;
+    QChartView * newChart;
     if (type == 1) {
-        chart = new QChartView(createLineChart());
+        newChart = new QChartView(createLineChart());
     } else if (type == 2) {
-        chart = new QChartView(createPieChart());
+        newChart = new QChartView(createPieChart());
     } else if (type == 3) {
-        chart = new QChartView(createBarChart());
+        newChart = new QChartView(createBarChart());
     }
-    delete charts;
-    charts = chart;
-    baseLayout->addWidget(chart, 1, 0);
+    delete chart;
+    chart = newChart;
+    baseLayout->addWidget(newChart, 1, 0);
     setLayout(baseLayout);
-    updateUI();
 }
 
 void ChartWindow::switchData(ChartData data)
 {
     chartData = data;
     switchType();
-    updateUI();
 }
 
 void ChartWindow::printChartToPdf() const
 {
-    QPdfWriter writer("out.pdf");
-    writer.setCreator("Someone");
-    writer.setPageSize(QPagedPaintDevice::A4);
-    QPainter painter(&writer);
-    charts->render(&painter);
-    painter.end();
-}
-
-void ChartWindow::updateUI()
-{
     QChart::ChartTheme theme = static_cast<QChart::ChartTheme>(
                 themeComboBox->itemData(themeComboBox->currentIndex()).toInt());
-
-    const auto chartsUI = charts;
-    if (charts->chart()->theme() != theme) {
-        chartsUI->chart()->setTheme(theme);
+    QPrinter printer;
+    if (theme == 2) {
+        printer.setColorMode(QPrinter::GrayScale);// установка ч/б цвета
     }
+    //С помощью QPainter выделение области для формирования pdf
+    printer.setOutputFormat(QPrinter::PdfFormat);
+    printer.setOutputFileName("result.pdf");
+    QPainter painter(&printer);
+    chart->render(&painter);
+    painter.end();
 }
 
 
