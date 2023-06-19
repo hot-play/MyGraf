@@ -8,7 +8,7 @@
 #include <QtWidgets/QGridLayout>
 #include <QPushButton>
 #include <chartdata.h>
-
+#include <ichart.h>
 QT_BEGIN_NAMESPACE
 class QComboBox;
 class QCheckBox;
@@ -38,7 +38,8 @@ class ChartWindow: public QWidget
     Q_OBJECT
 private:
     QGridLayout * baseLayout;
-    QChartView * chart;
+    QChartView * chartView;
+    IChart * chart;
     ChartData chartData;
     QComboBox * themeComboBox;
     QComboBox * typeComboBox;
@@ -46,9 +47,9 @@ private:
 public:
     explicit ChartWindow(QWidget *parent = nullptr);
 private:
-    QChart *createBarChart() const;
-    QChart *createPieChart() const;
-    QChart *createLineChart() const;
+    void initBarChart();
+    void initPieChart();
+    void initLineChart();
 public slots:
     void switchData(ChartData data);
     void printChartToPdf() const;

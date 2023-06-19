@@ -33,7 +33,11 @@ SOURCES += \
     jsonreader.cpp \
     csvreader.cpp \
     sqlreader.cpp \
-    ioc.cpp
+    ioc.cpp \
+    ichart.cpp \
+    linechart.cpp \
+    piechart.cpp \
+    barchart.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -44,7 +48,11 @@ HEADERS += \
     csvreader.h \
     sqlreader.h \
     ioc.h \
-    chartdata.h
+    chartdata.h \
+    ichart.h \
+    linechart.h \
+    piechart.h \
+    barchart.h
 
 FORMS += \
         mainwindow.ui
