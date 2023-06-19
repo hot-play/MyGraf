@@ -76,6 +76,10 @@ ChartWindow::ChartWindow(QWidget *parent) :
     setLayout(baseLayout);
 }
 
+ChartWindow::~ChartWindow() {
+    delete chart;
+}
+
 void ChartWindow::initLineChart()
 {
     if (chart) {
