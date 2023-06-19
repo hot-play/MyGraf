@@ -76,7 +76,7 @@ QChart *ChartWindow::createLineChart() const
 {
     QChart * newChart = new QChart();
     auto series = new QLineSeries (newChart);
-
+    // Записываем все данные в серии
     for (auto point: chartData.points) {
         float x, y;
 
@@ -85,20 +85,22 @@ QChart *ChartWindow::createLineChart() const
         y = point.value;
         series->append({x, y});
     }
-
+    // Добавляем серии на график
     newChart->addSeries(series);
     newChart->legend()->hide();
-
+    // Измерение даты
     auto dateTimeAxis = new QDateTimeAxis (newChart);
     dateTimeAxis->setTitleText(chartData.dateAxisTitle);
+    // Измерение value
     auto valueAxis = new QValueAxis (newChart);
     valueAxis->setTitleText(chartData.valueAxisTitle);
-
+    // Для корректной работы
     dateTimeAxis->setFormat("yyyy.MM");
     dateTimeAxis->setTickCount(7);
-
+    // Добавим измерения
     newChart->addAxis(dateTimeAxis, Qt::AlignBottom);
     newChart->addAxis(valueAxis, Qt::AlignLeft);
+    // Закрепляем измерения за сериями
 
     series->attachAxis(dateTimeAxis);
     series->attachAxis(valueAxis);
@@ -110,12 +112,12 @@ QChart *ChartWindow::createPieChart() const
 {
     QChart * newChart = new QChart();
     auto series = new QPieSeries (newChart);
-
+    // Записываем все данные в серии
     for (auto point: chartData.points) {
         float value {point.value};
         series->append(point.date, value);
     }
-
+    // Добавляем серии
     newChart->addSeries(series);
     newChart->legend()->show();
 
@@ -126,23 +128,28 @@ QChart *ChartWindow::createBarChart() const
 {
     QChart *newChart = new QChart();
     auto series = new QBarSeries (newChart);
+    // Записываем все данные в серии
     for (auto point: chartData.points) {
         auto value {point.value};
         auto barSet = new QBarSet (point.date, newChart);
         barSet->append(value);
         series->append(barSet);
     }
+    // Формируем измерение value
     auto valueAxis = new QValueAxis(newChart);
     valueAxis->setTitleText(chartData.valueAxisTitle);
     newChart->legend()->show();
+    // Добавляем серии
     newChart->addSeries(series);
     newChart->addAxis(valueAxis, Qt::AlignLeft);
+    // Закрепляем измерение за серией
     series->attachAxis(valueAxis);
     return newChart;
 }
 
 void ChartWindow::switchType()
 {
+    // По значению в списке typeComboBox, меняем график
     QChart::ChartTheme type = static_cast<QChart::ChartTheme>(
                 typeComboBox->itemData(typeComboBox->currentIndex()).toInt());
     QChartView * newChart;
