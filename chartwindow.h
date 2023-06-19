@@ -8,7 +8,7 @@
 #include <QtWidgets/QGridLayout>
 #include <QPushButton>
 #include <chartdata.h>
-
+#include <ichart.h>
 QT_BEGIN_NAMESPACE
 class QComboBox;
 class QCheckBox;
@@ -21,12 +21,25 @@ QT_CHARTS_END_NAMESPACE
 
 QT_CHARTS_USE_NAMESPACE
 
+// Реализация данного класса теоретически нарушает принцип единственной ответственности
+// в следствии, реализации здесь методов create...Chart
+// Объясню свою точку зрения:
+// Так как объекты QChartView, работают только с указателями QChart,
+// использовать умные указатели мы не можем, следовательно, роль удаления QChart,
+// лежит на этом классе.
+// Получается два пути:
+//     Реализовать 1 экземпляр QChart и динамически его обновлять
+//     Оставить ответственность на создание и удаление QChart'ов на этом классе
+// Полноценной документации по созданию динамических QChart, я не нашел,
+// на форумах написанно, что проще "костыльно" подменя один QChart на другой.
+
 class ChartWindow: public QWidget
 {
     Q_OBJECT
 private:
     QGridLayout * baseLayout;
-    QChartView * chart;
+    QChartView * chartView;
+    IChart * chart;
     ChartData chartData;
     QComboBox * themeComboBox;
     QComboBox * typeComboBox;
@@ -34,9 +47,9 @@ private:
 public:
     explicit ChartWindow(QWidget *parent = nullptr);
 private:
-    QChart *createBarChart() const;
-    QChart *createPieChart() const;
-    QChart *createLineChart() const;
+    void initBarChart();
+    void initPieChart();
+    void initLineChart();
 public slots:
     void switchData(ChartData data);
     void printChartToPdf() const;

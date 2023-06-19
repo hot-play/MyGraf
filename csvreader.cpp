@@ -5,9 +5,9 @@ bool CsvReader::readData(const QString filePath, ChartData &data, QString &readE
     QString fileData;
     QFile file;
     file.setFileName(filePath);
-    if (!file.open(QFile::ReadOnly | QFile::Text)) {
-            readError = "Файл не может быть открыт";
-            return false;
+    if (!tryOpenFile(filePath)) {
+        readError = "Файл не может быть открыт";
+        return false;
     }
     file.open(QIODevice::ReadOnly | QIODevice::Text);
     fileData = file.readAll();
