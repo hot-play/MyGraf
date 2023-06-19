@@ -24,6 +24,8 @@ bool CsvReader::readData(const QString filePath, ChartData &data, QString &readE
         dataMap[date].value += value;
         dataMap[date].count += 1;
     }
+    // Так как данные представляю в формате yyyy.MM и value, то нужно посчитать
+    // cреднее значение value
     ChartDataPoint dataPoint;
     for(auto pair : dataMap.toStdMap()) {
         dataPoint.date = pair.first;
